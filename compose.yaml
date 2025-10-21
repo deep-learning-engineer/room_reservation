@@ -13,15 +13,12 @@ services:
     build: 
       context: .
       dockerfile: docker/php/Dockerfile
-    volumes:
-      - ./:/var/www/html
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?serverVersion=16&charset=utf8
-    env_file:
-      - .env.dev
 
   database:
-    image: postgres:15
+    build: 
+      dockerfile: docker/database/Dockerfile
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
