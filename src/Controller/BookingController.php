@@ -8,6 +8,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BookingController extends AbstractController
 {
@@ -25,10 +28,7 @@ class BookingController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data['phone']) || !isset($data['house_id']) || !isset($data['comment'])) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'Missing required fields: phone, house_id, comment'
-            ], Response::HTTP_BAD_REQUEST);
+            throw new BadRequestHttpException('Missing required fields: phone, house_id, comment');
         }
 
         $result = $this->dataService->bookHouse(
@@ -37,10 +37,11 @@ class BookingController extends AbstractController
             $data['comment']
         );
 
-        $statusCode = $result['status_code'] ?? 
-                    ($result['success'] ? Response::HTTP_CREATED : Response::HTTP_INTERNAL_SERVER_ERROR);
+        if (!$result['success']) {
+            throw new UnprocessableEntityHttpException($result['error'] ?? 'Unknown error');
+        }
 
-        return new JsonResponse($result, $statusCode);
+        return new JsonResponse($result, Response::HTTP_CREATED);
     }
 
     // Изменение комментария бронирования
@@ -50,22 +51,16 @@ class BookingController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data['comment'])) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'Comment field is required'
-            ], Response::HTTP_BAD_REQUEST);
+            throw new BadRequestHttpException('Comment field is required');
         }
 
-        if ($this->dataService->updateBookingComment($id, $data['comment'])) {
-            return new JsonResponse([
-                'success' => true,
-                'message' => 'Booking comment updated successfully'
-            ]);
+        if (!$this->dataService->updateBookingComment($id, $data['comment'])) {
+            throw new NotFoundHttpException('Booking not found or update failed');
         }
 
         return new JsonResponse([
-            'success' => false,
-            'error' => 'Booking not found or update failed'
-        ], Response::HTTP_NOT_FOUND);
+            'success' => true,
+            'message' => 'Booking comment updated successfully'
+        ]);
     }
 }

@@ -24,3 +24,6 @@
 
 # Docker
 get-docker.sh
+
+# VsCode
+/.vscode
