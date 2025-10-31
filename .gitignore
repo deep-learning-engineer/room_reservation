@@ -20,7 +20,10 @@
 ###< symfony/asset-mapper ###
 
 # Vim un
-*.un~
+*~
 
 # Docker
 get-docker.sh
+
+# VsCode
+/.vscode

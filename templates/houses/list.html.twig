@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Summer Houses</title>
+    <style>
+        .house-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: #f9f9f9;
+        }
+        .available {
+            border-left: 5px solid #4CAF50;
+        }
+        .amenities { color: #666; font-style: italic; }
+        .beds, .distance, .price { color: #333; margin: 5px 0; }
+        .price { color: #2c5aa0; font-weight: bold; font-size: 1.2em; }
+        .availability { 
+            color: #4CAF50; 
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #2c5aa0;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1e3d6f;
+        }
+    </style>
+</head>
+<body>
+    <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+        <h1>Available Summer Houses</h1>
+        
+        {% if houses is empty %}
+            <p>No available houses at the moment. Please check back later.</p>
+        {% else %}
+            <p>Found {{ houses|length }} available house(s)</p>
+            <div id="houses-list">
+                {% for house in houses %}
+                    <div class="house-card available" id="house-{{ house.id }}">
+                        <div class="availability">✓ Available for booking</div>
+                        <h3>{{ house.name }} (#{{ house.id }})</h3>
+                        <p class="amenities"><strong>Amenities:</strong> {{ house.amenities }}</p>
+                        <p class="beds"><strong>Sleeping places:</strong> {{ house.beds }}</p>
+                        <p class="distance"><strong>Distance from sea:</strong> {{ house.distance }} meters</p>
+                        <p class="price"><strong>Price per night:</strong> {{ house.price }} RUB</p>
+                        
+                        <form class="booking-form" data-house-id="{{ house.id }}">
+                            <input type="tel" name="phone" placeholder="Your phone number" required 
+                                pattern="[0-9+\-\s()]{10,}" title="Please enter a valid phone number">
+                            <textarea name="comment" placeholder="Your comment (special requests, dates, etc.)" 
+                                required rows="3"></textarea>
+                            <button type="submit">Book this house</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.querySelectorAll('.booking-form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const houseId = form.dataset.houseId;
+                const formData = new FormData(form);
+                const submitButton = form.querySelector('button');
+                
+                submitButton.textContent = 'Booking...';
+                submitButton.disabled = true;
+                
+                const bookingData = {
+                    phone: formData.get('phone'),
+                    house_id: houseId,
+                    comment: formData.get('comment')
+                };
+
+                try {
+                    const response = await fetch('/api/booking', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(bookingData)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('Booking created successfully! ' + result.message);
+                        document.getElementById(`house-${houseId}`).remove();
+                        
+                        const housesCount = document.querySelectorAll('.house-card').length;
+                        const counter = document.querySelector('p');
+                        if (counter) {
+                            counter.textContent = `Found ${housesCount} available house(s)`;
+                        }
+                        
+                        if (housesCount === 0) {
+                            document.getElementById('houses-list').innerHTML = 
+                                '<p>No available houses at the moment. Please check back later.</p>';
+                        }
+                    } else {
+                        alert('Error: ' + result.error);
+                    }
+                } catch (error) {
+                    alert('Network error: ' + error.message);
+                } finally {
+                    submitButton.textContent = 'Book this house';
+                    submitButton.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
