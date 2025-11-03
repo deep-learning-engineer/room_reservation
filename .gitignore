@@ -27,3 +27,7 @@ get-docker.sh
 
 # VsCode
 /.vscode
+/.VsCodeCounter
+
+# Local GitActions
+.actrc
