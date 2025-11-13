@@ -1,10 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Tests\Functional\Controller;
 
 use App\Entity\Booking;
 use App\Entity\User;
 use App\Service\BookingService;
 use App\Service\UserService;
+use DateTime;
+use Override;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,13 +19,14 @@ class BookingControllerTest extends WebTestCase
     private $bookingServiceMock;
     private $userServiceMock;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->client = static::createClient();
-        
+
         $this->bookingServiceMock = $this->createMock(BookingService::class);
         $this->userServiceMock = $this->createMock(UserService::class);
-        
+
         $container = static::getContainer();
         $container->set(BookingService::class, $this->bookingServiceMock);
         $container->set(UserService::class, $this->userServiceMock);
@@ -31,7 +37,7 @@ class BookingControllerTest extends WebTestCase
         $bookingData = [
             'phone' => '79123456789',
             'house_id' => 1,
-            'comment' => 'Test booking comment'
+            'comment' => 'Test booking comment',
         ];
 
         $mockUser = $this->createMock(User::class);
@@ -41,7 +47,7 @@ class BookingControllerTest extends WebTestCase
         $mockBooking->method('getId')->willReturn(1);
         $mockBooking->method('getComment')->willReturn('Test booking comment');
         $mockBooking->method('getStatus')->willReturn('confirmed');
-        $mockBooking->method('getCreatedAt')->willReturn(new \DateTime('2023-01-01 12:00:00'));
+        $mockBooking->method('getCreatedAt')->willReturn(new DateTime('2023-01-01 12:00:00'));
 
         $this->userServiceMock
             ->expects($this->once())
@@ -65,7 +71,7 @@ class BookingControllerTest extends WebTestCase
         );
 
         $this->assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($responseData['success']);
         $this->assertArrayHasKey('booking', $responseData);
@@ -76,7 +82,7 @@ class BookingControllerTest extends WebTestCase
         $bookingData = [
             'phone' => '79999999999',
             'house_id' => 1,
-            'comment' => 'Test booking comment'
+            'comment' => 'Test booking comment',
         ];
 
         $this->userServiceMock
@@ -99,7 +105,7 @@ class BookingControllerTest extends WebTestCase
     public function testCreateBookingMissingFields(): void
     {
         $bookingData = [
-            'phone' => '79123456789'
+            'phone' => '79123456789',
         ];
 
         $this->client->request(
@@ -118,7 +124,7 @@ class BookingControllerTest extends WebTestCase
     {
         $bookingId = 1;
         $updateData = [
-            'comment' => 'Updated booking comment'
+            'comment' => 'Updated booking comment',
         ];
 
         $this->bookingServiceMock
@@ -142,7 +148,7 @@ class BookingControllerTest extends WebTestCase
     {
         $bookingId = 999;
         $updateData = [
-            'comment' => 'Updated booking comment'
+            'comment' => 'Updated booking comment',
         ];
 
         $this->bookingServiceMock

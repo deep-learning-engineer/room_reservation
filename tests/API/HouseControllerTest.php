@@ -1,8 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Tests\Functional\Controller;
 
 use App\Entity\House;
 use App\Service\HouseService;
+use Override;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -11,6 +15,7 @@ class HouseControllerTest extends WebTestCase
     private $client;
     private $houseServiceMock;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->client = static::createClient();
@@ -30,7 +35,7 @@ class HouseControllerTest extends WebTestCase
                 ->setName('House 2')
                 ->setDescription('Description 2')
                 ->setPrice(150.0)
-                ->setIsAvailable(true)
+                ->setIsAvailable(true),
         ];
 
         $this->houseServiceMock
@@ -40,7 +45,7 @@ class HouseControllerTest extends WebTestCase
         $this->client->request('GET', '/api/houses');
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($responseData['success']);
         $this->assertCount(2, $responseData['houses']);
@@ -56,7 +61,7 @@ class HouseControllerTest extends WebTestCase
         $this->client->request('GET', '/api/houses');
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($responseData['success']);
         $this->assertEmpty($responseData['houses']);
@@ -71,7 +76,7 @@ class HouseControllerTest extends WebTestCase
             'name' => 'Test House',
             'description' => 'Test Description',
             'price' => 200.0,
-            'is_available' => true
+            'is_available' => true,
         ];
 
         $this->houseServiceMock
@@ -82,7 +87,7 @@ class HouseControllerTest extends WebTestCase
         $this->client->request('GET', '/api/houses/' . $houseId);
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($responseData['success']);
         $this->assertEquals($houseData, $responseData['house']);

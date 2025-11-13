@@ -1,8 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Tests\Functional\Controller;
 
 use App\Entity\User;
 use App\Service\UserService;
+use InvalidArgumentException;
+use Override;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -11,6 +16,7 @@ class UserControllerTest extends WebTestCase
     private $client;
     private $userServiceMock;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->client = static::createClient();
@@ -23,7 +29,7 @@ class UserControllerTest extends WebTestCase
         $userData = [
             'email' => 'test@example.com',
             'name' => 'John Doe',
-            'phone' => '79123456789'
+            'phone' => '79123456789',
         ];
 
         $mockUser = $this->createMock(User::class);
@@ -48,7 +54,7 @@ class UserControllerTest extends WebTestCase
         );
 
         $this->assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($responseData['success']);
         $this->assertEquals('test@example.com', $responseData['user']['email']);
@@ -59,7 +65,7 @@ class UserControllerTest extends WebTestCase
     public function testCreateUserMissingFields(): void
     {
         $userData = [
-            'email' => 'test@example.com'
+            'email' => 'test@example.com',
             // missing name and phone
         ];
 
@@ -80,12 +86,12 @@ class UserControllerTest extends WebTestCase
         $userData = [
             'email' => 'invalid-email',
             'name' => 'John Doe',
-            'phone' => '79123456789'
+            'phone' => '79123456789',
         ];
 
         $this->userServiceMock
             ->method('createUser')
-            ->willThrowException(new \InvalidArgumentException('Invalid email format'));
+            ->willThrowException(new InvalidArgumentException('Invalid email format'));
 
         $this->client->request(
             'POST',
