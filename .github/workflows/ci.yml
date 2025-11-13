@@ -1,0 +1,41 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl
+        sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+
+    - name: Load .env.test variables into GitHub Environment
+      run: |
+        cat .env.test >> $GITHUB_ENV
+
+    - name: Start services
+      run: |
+        make start
+
+    - name: Install Composer dependencies
+      run: |
+        make install
+
+    - name: Run complete CI checks
+      run: |
+        make ci
+
+    - name: Stop services
+      run: |
+        make down
