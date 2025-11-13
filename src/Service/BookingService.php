@@ -1,11 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Booking;
+use App\Entity\House;
 use App\Entity\User;
 use App\Repository\BookingRepository;
 use App\Repository\HouseRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use InvalidArgumentException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class BookingService
@@ -19,7 +25,7 @@ class BookingService
         BookingRepository $bookingRepository,
         HouseRepository $houseRepository,
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
     ) {
         $this->bookingRepository = $bookingRepository;
         $this->houseRepository = $houseRepository;
@@ -31,11 +37,15 @@ class BookingService
     {
         $house = $this->houseRepository->find($houseId);
         if (!$house) {
-            throw new \InvalidArgumentException('House not found');
+            throw new InvalidArgumentException('House not found');
+        }
+
+        if (!$house instanceof House) {
+            throw new InvalidArgumentException('Invalid house type');
         }
 
         if (!$house->getIsAvailable()) {
-            throw new \InvalidArgumentException('House is not available for booking');
+            throw new InvalidArgumentException('House is not available for booking');
         }
 
         $booking = new Booking();
@@ -46,17 +56,17 @@ class BookingService
 
         $errors = $this->validator->validate($booking);
         if (count($errors) > 0) {
-            throw new \InvalidArgumentException((string) $errors);
+            throw new InvalidArgumentException((string) $errors);
         }
 
         $this->entityManager->beginTransaction();
         try {
             $house->setIsAvailable(false);
-            
+
             $this->entityManager->persist($booking);
             $this->entityManager->flush();
             $this->entityManager->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->entityManager->rollback();
             throw $e;
         }
@@ -75,10 +85,11 @@ class BookingService
 
         $errors = $this->validator->validate($booking);
         if (count($errors) > 0) {
-            throw new \InvalidArgumentException((string) $errors);
+            throw new InvalidArgumentException((string) $errors);
         }
 
         $this->entityManager->flush();
+
         return true;
     }
 

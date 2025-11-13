@@ -1,16 +1,22 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Tests\Unit\Service;
 
 use App\Entity\Booking;
-use App\Entity\User;
 use App\Entity\House;
+use App\Entity\User;
 use App\Repository\BookingRepository;
 use App\Repository\HouseRepository;
 use App\Service\BookingService;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use InvalidArgumentException;
+use Override;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class BookingServiceTest extends TestCase
 {
@@ -20,6 +26,7 @@ class BookingServiceTest extends TestCase
     private $entityManagerMock;
     private $validatorMock;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->bookingRepositoryMock = $this->createMock(BookingRepository::class);
@@ -40,7 +47,7 @@ class BookingServiceTest extends TestCase
         $user = $this->createMock(User::class);
         $houseId = 1;
         $comment = 'Test booking comment';
-        
+
         $house = $this->createMock(House::class);
         $house->method('getId')->willReturn($houseId);
         $house->method('getIsAvailable')->willReturn(true);
@@ -80,7 +87,7 @@ class BookingServiceTest extends TestCase
             ->with($houseId)
             ->willReturn(null);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('House not found');
 
         $this->bookingService->createBooking($user, $houseId, $comment);
@@ -91,7 +98,7 @@ class BookingServiceTest extends TestCase
         $user = $this->createMock(User::class);
         $houseId = 1;
         $comment = 'Test booking comment';
-        
+
         $house = $this->createMock(House::class);
         $house->method('getIsAvailable')->willReturn(false);
 
@@ -100,7 +107,7 @@ class BookingServiceTest extends TestCase
             ->with($houseId)
             ->willReturn($house);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('House is not available for booking');
 
         $this->bookingService->createBooking($user, $houseId, $comment);
@@ -111,7 +118,7 @@ class BookingServiceTest extends TestCase
         $user = $this->createMock(User::class);
         $houseId = 1;
         $comment = 'Test booking comment';
-        
+
         $house = $this->createMock(House::class);
         $house->method('getIsAvailable')->willReturn(true);
 
@@ -126,10 +133,11 @@ class BookingServiceTest extends TestCase
 
         $this->entityManagerMock->expects($this->once())->method('beginTransaction');
         $this->entityManagerMock->expects($this->once())->method('persist');
-        $this->entityManagerMock->expects($this->once())->method('flush')->willThrowException(new \Exception('DB error'));
+        $this->entityManagerMock->expects($this->once())->method('flush')
+            ->willThrowException(new Exception('DB error'));
         $this->entityManagerMock->expects($this->once())->method('rollback');
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('DB error');
 
         $this->bookingService->createBooking($user, $houseId, $comment);
@@ -139,7 +147,7 @@ class BookingServiceTest extends TestCase
     {
         $bookingId = 1;
         $newComment = 'Updated booking comment';
-        
+
         $booking = $this->createMock(Booking::class);
         $booking->expects($this->once())->method('setComment')->with($newComment);
 
@@ -179,7 +187,7 @@ class BookingServiceTest extends TestCase
         $bookingId = 1;
         $commentWithSpaces = '  Updated comment with spaces   ';
         $expectedTrimmedComment = 'Updated comment with spaces';
-        
+
         $booking = $this->createMock(Booking::class);
         $booking->expects($this->once())
                 ->method('setComment')

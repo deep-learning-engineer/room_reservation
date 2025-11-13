@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Repository\HouseRepository;
@@ -20,7 +23,7 @@ class HouseService
     public function getHouseById(int $houseId): ?array
     {
         $house = $this->houseRepository->find($houseId);
-        
+
         if (!$house) {
             return null;
         }
@@ -30,7 +33,7 @@ class HouseService
             'name' => $house->getName(),
             'description' => $house->getDescription(),
             'price' => $house->getPrice(),
-            'is_available' => $house->getIsAvailable()
+            'is_available' => $house->getIsAvailable(),
         ];
     }
 }

@@ -1,9 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use InvalidArgumentException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserService
@@ -26,16 +30,16 @@ class UserService
 
         $errors = $this->validator->validate($user);
         if (count($errors) > 0) {
-            throw new \InvalidArgumentException((string) $errors);
+            throw new InvalidArgumentException((string) $errors);
         }
 
         try {
             $this->userRepository->save($user);
+
             return $user;
-            
         } catch (UniqueConstraintViolationException $e) {
             $field = $this->getViolatedFieldFromException($e);
-            throw new \InvalidArgumentException("User with this $field already exists");
+            throw new InvalidArgumentException("User with this $field already exists");
         }
     }
 
@@ -52,15 +56,15 @@ class UserService
     private function getViolatedFieldFromException(UniqueConstraintViolationException $e): string
     {
         $message = $e->getMessage();
-        
-        if (strpos($message, 'email') !== false || strpos($message, 'UNIQ_EMAIL') !== false) {
+
+        if (false !== strpos($message, 'email') || false !== strpos($message, 'UNIQ_EMAIL')) {
             return 'email';
         }
-        
-        if (strpos($message, 'phone') !== false || strpos($message, 'UNIQ_PHONE') !== false) {
+
+        if (false !== strpos($message, 'phone') || false !== strpos($message, 'UNIQ_PHONE')) {
             return 'phone';
         }
-        
+
         return 'email or phone';
     }
 }
