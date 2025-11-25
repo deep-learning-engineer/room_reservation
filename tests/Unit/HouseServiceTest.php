@@ -28,12 +28,12 @@ class HouseServiceTest extends TestCase
             (new House())
                 ->setName('House 1')
                 ->setDescription('Description 1')
-                ->setPrice(100.0)
+                ->setPrice('100.0')
                 ->setIsAvailable(true),
             (new House())
                 ->setName('House 2')
                 ->setDescription('Description 2')
-                ->setPrice(150.0)
+                ->setPrice('150.0')
                 ->setIsAvailable(true),
         ];
 
@@ -48,7 +48,7 @@ class HouseServiceTest extends TestCase
         $this->assertSame($mockHouses, $result);
         $this->assertInstanceOf(House::class, $result[0]);
         $this->assertEquals('House 1', $result[0]->getName());
-        $this->assertEquals(100.0, $result[0]->getPrice());
+        $this->assertEquals('100.0', $result[0]->getPrice());
         $this->assertEquals(true, $result[0]->getIsAvailable());
     }
 
@@ -72,7 +72,7 @@ class HouseServiceTest extends TestCase
         $mockHouse->method('getId')->willReturn($houseId);
         $mockHouse->method('getName')->willReturn('Test House');
         $mockHouse->method('getDescription')->willReturn('Test Description');
-        $mockHouse->method('getPrice')->willReturn(200.0);
+        $mockHouse->method('getPrice')->willReturn('200.0');
         $mockHouse->method('getIsAvailable')->willReturn(true);
 
         $this->houseRepositoryMock
@@ -87,7 +87,7 @@ class HouseServiceTest extends TestCase
             'id' => $houseId,
             'name' => 'Test House',
             'description' => 'Test Description',
-            'price' => 200.0,
+            'price' => '200.0',
             'is_available' => true,
         ], $result);
     }

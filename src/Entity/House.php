@@ -25,7 +25,7 @@ class House
     private string $description;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    private float $price;
+    private string $price = '0';
 
     #[ORM\Column(type: 'boolean')]
     private bool $isAvailable = true;
@@ -67,12 +67,12 @@ class House
         return $this;
     }
 
-    public function getPrice(): float
+    public function getPrice(): string
     {
         return $this->price;
     }
 
-    public function setPrice(float $price): self
+    public function setPrice(string $price): self
     {
         $this->price = $price;
 

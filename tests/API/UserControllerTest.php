@@ -30,6 +30,7 @@ class UserControllerTest extends WebTestCase
             'email' => 'test@example.com',
             'name' => 'John Doe',
             'phone' => '79123456789',
+            'password' => '12345',
         ];
 
         $mockUser = $this->createMock(User::class);
@@ -46,7 +47,7 @@ class UserControllerTest extends WebTestCase
 
         $this->client->request(
             'POST',
-            '/api/user',
+            '/api/register',
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
@@ -56,22 +57,23 @@ class UserControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertTrue($responseData['success']);
-        $this->assertEquals('test@example.com', $responseData['user']['email']);
-        $this->assertEquals('John Doe', $responseData['user']['name']);
-        $this->assertEquals('79123456789', $responseData['user']['phone']);
+        $user = json_decode($responseData['user'], true);
+
+        $this->assertEquals('test@example.com', $user['email']);
+        $this->assertEquals('John Doe', $user['name']);
+        $this->assertEquals('79123456789', $user['phone']);
     }
 
     public function testCreateUserMissingFields(): void
     {
         $userData = [
             'email' => 'test@example.com',
-            // missing name and phone
+            // missing name and phone, password
         ];
 
         $this->client->request(
             'POST',
-            '/api/user',
+            '/api/register',
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
@@ -87,6 +89,7 @@ class UserControllerTest extends WebTestCase
             'email' => 'invalid-email',
             'name' => 'John Doe',
             'phone' => '79123456789',
+            'password' => '12345',
         ];
 
         $this->userServiceMock
@@ -95,7 +98,7 @@ class UserControllerTest extends WebTestCase
 
         $this->client->request(
             'POST',
-            '/api/user',
+            '/api/register',
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
@@ -109,7 +112,7 @@ class UserControllerTest extends WebTestCase
     {
         $this->client->request(
             'POST',
-            '/api/user',
+            '/api/register',
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],

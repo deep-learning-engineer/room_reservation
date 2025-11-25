@@ -10,6 +10,9 @@ services:
       - php
 
   php:
+    env_file:
+      - .env
+      - .env.test
     build: 
       dockerfile: docker/php/Dockerfile
     environment:
