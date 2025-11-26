@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\HouseService;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[OA\Tag(name: 'Houses')]
 class HouseController extends AbstractController
 {
     private HouseService $houseService;
@@ -20,19 +21,22 @@ class HouseController extends AbstractController
         $this->houseService = $houseService;
     }
 
-    // Получение списка свободных помещений в виде HTML страницы
-    #[Route('/houses', name: 'houses', methods: ['GET'])]
-    public function getAvailableHouses(): Response
-    {
-        $availableHouses = $this->houseService->getAvailableHouses();
-
-        return $this->render('houses/list.html.twig', [
-            'houses' => $availableHouses,
-        ]);
-    }
-
-    // Получение списка свободных помещений
-    #[Route('/api/houses', name: 'api_houses_all', methods: ['GET'])]
+    #[Route('api/houses', name: 'api_houses_all', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get available houses',
+        description: 'Get list of all available houses for booking'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'List of available houses',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'success', type: 'boolean'),
+                new OA\Property(property: 'houses', type: 'array', items: new OA\Items(type: 'object')),
+                new OA\Property(property: 'total', type: 'integer'),
+            ]
+        )
+    )]
     public function getAvailableHousesAPI(): JsonResponse
     {
         $houses = $this->houseService->getAvailableHouses();
@@ -44,8 +48,32 @@ class HouseController extends AbstractController
         ]);
     }
 
-    // Получение информации о конкретном доме
-    #[Route('/api/houses/{id}', name: 'api_house', methods: ['GET'])]
+    #[Route('api/houses/{id}', name: 'api_house', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get house details',
+        description: 'Get detailed information about a specific house'
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer'),
+        description: 'House ID'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'House details',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'success', type: 'boolean'),
+                new OA\Property(property: 'house', type: 'object'),
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'House not found'
+    )]
     public function getHouse(string $id): JsonResponse
     {
         $house = $this->houseService->getHouseById((int) $id);
