@@ -1,7 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\BookingRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -27,40 +31,71 @@ class Booking
     private string $comment;
 
     #[ORM\Column(type: 'datetime')]
-    private \DateTime $createdAt;
+    private DateTime $createdAt;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $status = 'pending';
 
     public function __construct()
     {
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new DateTime();
     }
 
-    public function getId(): ?int { return $this->id; }
-
-    public function getUser(): User { return $this->user; }
-    public function setUser(User $user): self 
-    { 
-        $this->user = $user; return $this; 
-    }
-    
-    public function getHouse(): House { return $this->house; }
-    public function setHouse(House $house): self 
-    { 
-        $this->house = $house; return $this; 
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 
-    public function getComment(): string { return $this->comment; }
-    public function setComment(string $comment): self 
-    { 
-        $this->comment = $comment; return $this; }
+    public function getUser(): User
+    {
+        return $this->user;
+    }
 
-    public function getCreatedAt(): \DateTime { return $this->createdAt; }
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
 
-    public function getStatus(): string { return $this->status; }
-    public function setStatus(string $status): self 
-    { 
-        $this->status = $status; return $this; 
+        return $this;
+    }
+
+    public function getHouse(): House
+    {
+        return $this->house;
+    }
+
+    public function setHouse(House $house): self
+    {
+        $this->house = $house;
+
+        return $this;
+    }
+
+    public function getComment(): string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(string $comment): self
+    {
+        $this->comment = $comment;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
     }
 }

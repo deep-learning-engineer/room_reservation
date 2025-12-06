@@ -1,13 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Tests\Unit\Service;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\UserService;
+use InvalidArgumentException;
+use Override;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserServiceTest extends TestCase
 {
@@ -15,6 +20,7 @@ class UserServiceTest extends TestCase
     private $userRepositoryMock;
     private $validatorMock;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->userRepositoryMock = $this->createMock(UserRepository::class);
@@ -46,12 +52,12 @@ class UserServiceTest extends TestCase
     {
         $violations = new ConstraintViolationList([
             $this->createConstraintViolation('Invalid email', 'email'),
-            $this->createConstraintViolation('Invalid phone format', 'phone')
+            $this->createConstraintViolation('Invalid phone format', 'phone'),
         ]);
 
         $this->validatorMock->method('validate')->willReturn($violations);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid email');
 
         $this->userService->createUser('invalid-email', 'John Doe', '123');

@@ -1,12 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Service\HouseService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 
 class HouseController extends AbstractController
 {
@@ -33,11 +36,11 @@ class HouseController extends AbstractController
     public function getAvailableHousesAPI(): JsonResponse
     {
         $houses = $this->houseService->getAvailableHouses();
-        
+
         return new JsonResponse([
             'success' => true,
             'houses' => $houses,
-            'total' => count($houses)
+            'total' => count($houses),
         ]);
     }
 
@@ -45,7 +48,7 @@ class HouseController extends AbstractController
     #[Route('/api/houses/{id}', name: 'api_house', methods: ['GET'])]
     public function getHouse(string $id): JsonResponse
     {
-        $house = $this->houseService->getHouseById($id);
+        $house = $this->houseService->getHouseById((int) $id);
 
         if (!$house) {
             throw new NotFoundHttpException('House not found');
@@ -53,7 +56,7 @@ class HouseController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
-            'house' => $house
+            'house' => $house,
         ]);
     }
 }

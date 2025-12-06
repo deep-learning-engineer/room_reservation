@@ -1,10 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\UserRepository;
-use Doctrine\ORM\Mapping as ORM;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -38,38 +42,62 @@ class User
     private Collection $bookings;
 
     #[ORM\Column(type: 'datetime')]
-    private \DateTime $createdAt;
+    private DateTime $createdAt;
 
     public function __construct()
     {
         $this->bookings = new ArrayCollection();
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new DateTime();
     }
 
-    public function getId(): ?int { return $this->id; }
-
-    public function getEmail(): string { return $this->email; }
-    public function setEmail(string $email): self 
-    { 
-        $this->email = $email; 
-        return $this; 
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 
-    public function getName(): string { return $this->name; }
-    public function setName(string $name): self 
-    { 
-        $this->name = $name; 
-        return $this; 
+    public function getEmail(): string
+    {
+        return $this->email;
     }
 
-    public function getPhone(): string { return $this->phone; }
-    public function setPhone(string $phone): self 
-    { 
-        $this->phone = $phone; 
-        return $this; 
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
     }
 
-    public function getCreatedAt(): \DateTime { return $this->createdAt; }
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
-    public function getBookings(): Collection { return $this->bookings; }
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getPhone(): string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(string $phone): self
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function getBookings(): Collection
+    {
+        return $this->bookings;
+    }
 }

@@ -1,15 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Service\BookingService;
 use App\Service\UserService;
+use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 
 class BookingController extends AbstractController
 {
@@ -21,7 +25,7 @@ class BookingController extends AbstractController
         $this->bookingService = $bookingService;
         $this->userService = $userService;
     }
-    
+
     // Создание заявки на бронирование
     #[Route('/api/booking', name: 'api_booking_create', methods: ['POST'])]
     public function createBooking(Request $request): JsonResponse
@@ -40,7 +44,7 @@ class BookingController extends AbstractController
         try {
             $booking = $this->bookingService->createBooking(
                 $user,
-                (int)$data['house_id'],
+                (int) $data['house_id'],
                 $data['comment']
             );
 
@@ -52,12 +56,11 @@ class BookingController extends AbstractController
                     'house_id' => $data['house_id'],
                     'comment' => $booking->getComment(),
                     'status' => $booking->getStatus(),
-                    'created_at' => $booking->getCreatedAt()->format('Y-m-d H:i:s')
+                    'created_at' => $booking->getCreatedAt()->format('Y-m-d H:i:s'),
                 ],
-                'message' => 'Booking created successfully'
+                'message' => 'Booking created successfully',
             ], Response::HTTP_CREATED);
-
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             throw new BadRequestHttpException($e->getMessage());
         }
     }
@@ -74,17 +77,16 @@ class BookingController extends AbstractController
 
         try {
             $result = $this->bookingService->updateBookingComment($id, $data['comment']);
-            
+
             if (!$result) {
                 throw new NotFoundHttpException('Booking not found');
             }
 
             return new JsonResponse([
                 'success' => true,
-                'message' => 'Booking comment updated successfully'
+                'message' => 'Booking comment updated successfully',
             ]);
-
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             throw new BadRequestHttpException($e->getMessage());
         }
     }

@@ -1,9 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Tests\Unit\Service;
 
 use App\Entity\House;
 use App\Repository\HouseRepository;
 use App\Service\HouseService;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 class HouseServiceTest extends TestCase
@@ -11,6 +15,7 @@ class HouseServiceTest extends TestCase
     private HouseService $houseService;
     private $houseRepositoryMock;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->houseRepositoryMock = $this->createMock(HouseRepository::class);
@@ -29,7 +34,7 @@ class HouseServiceTest extends TestCase
                 ->setName('House 2')
                 ->setDescription('Description 2')
                 ->setPrice(150.0)
-                ->setIsAvailable(true)
+                ->setIsAvailable(true),
         ];
 
         $this->houseRepositoryMock
@@ -56,14 +61,13 @@ class HouseServiceTest extends TestCase
 
         $result = $this->houseService->getAvailableHouses();
 
-        $this->assertIsArray($result);
         $this->assertEmpty($result);
     }
 
     public function testGetHouseById(): void
     {
         $houseId = 1;
-        
+
         $mockHouse = $this->createMock(House::class);
         $mockHouse->method('getId')->willReturn($houseId);
         $mockHouse->method('getName')->willReturn('Test House');
@@ -84,7 +88,7 @@ class HouseServiceTest extends TestCase
             'name' => 'Test House',
             'description' => 'Test Description',
             'price' => 200.0,
-            'is_available' => true
+            'is_available' => true,
         ], $result);
     }
 
