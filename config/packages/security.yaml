@@ -30,6 +30,8 @@ security:
             provider: app_user_provider
 
     access_control:
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
+
         - { path: ^/houses, roles: PUBLIC_ACCESS }
         - { path: ^/api/houses, roles: PUBLIC_ACCESS }
         

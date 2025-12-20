@@ -1,0 +1,9 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: 'House Booking API'
+            description: 'API for booking houses and accommodations'
+            version: '1.0.0'
+    areas:
+        path_patterns: 
+            - ^/api(?!/doc$)
