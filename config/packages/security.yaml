@@ -1,41 +1,53 @@
 security:
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-    
+
     providers:
         app_user_provider:
             entity:
                 class: App\Entity\User
-                property: phone 
+                property: phone
 
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-            
+
         api:
             pattern: ^/api
             stateless: true
             provider: app_user_provider
-            
             json_login:
                 check_path: /api/login
                 username_path: phone
                 password_path: password
             logout:
                 path: /api/logout
-                
-        main:
-            lazy: true
+
+        admin:
+            pattern: ^/admin
             provider: app_user_provider
+            form_login:
+                login_path: admin_login
+                check_path: admin_login
+                default_target_path: /admin
+                username_parameter: _username
+                password_parameter: _password
+            logout:
+                path: admin_logout
+                target: admin_login
 
     access_control:
         - { path: ^/api/doc, roles: PUBLIC_ACCESS }
-
+        
         - { path: ^/houses, roles: PUBLIC_ACCESS }
         - { path: ^/api/houses, roles: PUBLIC_ACCESS }
         
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
         
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        
+        - { path: ^/admin, roles: ROLE_ADMIN }
