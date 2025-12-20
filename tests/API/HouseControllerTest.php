@@ -29,12 +29,12 @@ class HouseControllerTest extends WebTestCase
             (new House())
                 ->setName('House 1')
                 ->setDescription('Description 1')
-                ->setPrice(100.0)
+                ->setPrice('100.0')
                 ->setIsAvailable(true),
             (new House())
                 ->setName('House 2')
                 ->setDescription('Description 2')
-                ->setPrice(150.0)
+                ->setPrice('150.0')
                 ->setIsAvailable(true),
         ];
 
@@ -75,7 +75,7 @@ class HouseControllerTest extends WebTestCase
             'id' => $houseId,
             'name' => 'Test House',
             'description' => 'Test Description',
-            'price' => 200.0,
+            'price' => '200.0',
             'is_available' => true,
         ];
 

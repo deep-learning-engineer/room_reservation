@@ -30,12 +30,19 @@ class BookingControllerTest extends WebTestCase
         $container = static::getContainer();
         $container->set(BookingService::class, $this->bookingServiceMock);
         $container->set(UserService::class, $this->userServiceMock);
+
+        $mockUser = $this->createMock(User::class);
+        $mockUser->method('getId')->willReturn(1);
+        $mockUser->method('getPhone')->willReturn('79' . rand(100000000, 999999999));
+
+        $this->client->loginUser($mockUser);
     }
 
     public function testCreateBookingSuccess(): void
     {
+        $phone = '79' . rand(100000000, 999999999);
         $bookingData = [
-            'phone' => '79123456789',
+            'phone' => $phone,
             'house_id' => 1,
             'comment' => 'Test booking comment',
         ];
@@ -52,7 +59,7 @@ class BookingControllerTest extends WebTestCase
         $this->userServiceMock
             ->expects($this->once())
             ->method('findUserByPhone')
-            ->with('79123456789')
+            ->with($phone)
             ->willReturn($mockUser);
 
         $this->bookingServiceMock
@@ -71,7 +78,6 @@ class BookingControllerTest extends WebTestCase
         );
 
         $this->assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
-
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($responseData['success']);
         $this->assertArrayHasKey('booking', $responseData);
@@ -79,15 +85,16 @@ class BookingControllerTest extends WebTestCase
 
     public function testCreateBookingUserNotFound(): void
     {
+        $phone = '79' . rand(100000000, 999999999);
         $bookingData = [
-            'phone' => '79999999999',
+            'phone' => $phone,
             'house_id' => 1,
             'comment' => 'Test booking comment',
         ];
 
         $this->userServiceMock
             ->method('findUserByPhone')
-            ->with('79999999999')
+            ->with($phone)
             ->willReturn(null);
 
         $this->client->request(
@@ -105,7 +112,7 @@ class BookingControllerTest extends WebTestCase
     public function testCreateBookingMissingFields(): void
     {
         $bookingData = [
-            'phone' => '79123456789',
+            'phone' => '79' . rand(100000000, 999999999),
         ];
 
         $this->client->request(

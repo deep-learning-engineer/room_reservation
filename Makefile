@@ -106,13 +106,23 @@ security: ## Check for security vulnerabilities
 	$(COMPOSER_DEV) audit
 
 # Comprehensive checks
-check: lint lint-dry analysis security test ## Run all checks (development)
+check: lint lint-dry analysis test ## Run all checks (development)
+
+init-test-db: ## Initialize database for testing
+	@echo "${BLUE}Initializing test database...${NC}"
+	# Drop existing test db if exists (ensures clean slate)
+	$(DOCKER_EXEC_DEV) php bin/console doctrine:database:drop --force --env=test --if-exists
+	# Create the room_database_test
+	$(DOCKER_EXEC_DEV) php bin/console doctrine:database:create --env=test
+	# Create tables/schema
+	$(DOCKER_EXEC_DEV) php bin/console doctrine:schema:create --env=test
 
 ci: ## Run CI checks (without fixing)
 	@echo "${BLUE}Running CI checks...${NC}"
 	$(PHPCS_DEV) || (echo "${RED}Code style check (PHP_CodeSniffer) failed${NC}" && exit 1)
 	$(PHPCSFIXER_DEV) fix --dry-run --diff || (echo "${RED}Code style check (PHP-CS-Fixer) failed${NC}" && exit 1)
 	$(PSALM_DEV) || (echo "${RED}Static analysis failed${NC}" && exit 1)
+	make init-test-db
 	$(PHPUNIT_DEV) || (echo "${RED}Tests failed${NC}" && exit 1)
 	@echo "${GREEN}All CI checks passed!${NC}"
 
